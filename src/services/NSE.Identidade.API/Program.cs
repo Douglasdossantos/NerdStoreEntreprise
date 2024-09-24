@@ -24,50 +24,12 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
 });
 
-builder.Services.AddDefaultIdentity<IdentityUser>()
-    .AddRoles<IdentityRole>()
-    .AddErrorDescriber<IdentityMensagensPortugues>()
-    .AddEntityFrameworkStores<ApplicationDbContext>()
-    .AddDefaultTokenProviders();
+builder.Services.AddApiConfiguration(builder.Configuration);
 
-builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddSwaggerConfiguration();
 
-var appSettingsSection = builder.Configuration.GetSection("AppSettings");
-builder.Services.Configure<AppSettings>(appSettingsSection);
+var app = builder.Build();
 
-var appSettings = appSettingsSection.Get<AppSettings>();
-var key = Encoding.ASCII.GetBytes(appSettings.Secret);
+app.UseApiConfiguration(app.Environment);
 
-builder.Services.AddAuthentication(options =>
-{
-    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-}).AddJwtBearer(bearerOptions =>
-{
-    bearerOptions.RequireHttpsMetadata = true;
-    bearerOptions.SaveToken = true; ;
-    bearerOptions.TokenValidationParameters = new TokenValidationParameters
-    {
-        ValidateIssuerSigningKey = true,
-        IssuerSigningKey = new SymmetricSecurityKey(key),
-        ValidateIssuer = true,
-        ValidateAudience = true,
-        ValidAudience = appSettings.ValidoEm,
-        ValidIssuer =  appSettings.Emissor,
-    };
-});
-
-builder.Services.AddApiConfig();
-
-builder.Services.AddSwaggerGen(c =>
-{
-    c.SwaggerDoc("v1", new OpenApiInfo
-    {
-        Title = "NerdStore Entreprise Identity api",
-        Description = "Esta APi faz parte do curso ASP.net core entreprise aplication.",
-        Contact = new OpenApiContact() { Name = "Douglas dos santos", Email = "douglas@teste.com.br.io" },
-        License = new OpenApiLicense() { Name = "MIT", Url = new Uri("https://opensource.org/licesnses/MIT") }
-    });
-});
-
-var app =
+app.UseSwaggerConfiguration();

@@ -1,7 +1,9 @@
-﻿using Microsoft.Extensions.Options;
+﻿using Microsoft.AspNetCore.Builder;
+using Microsoft.Extensions.Options;
 using Microsoft.OpenApi.Any;
 using Microsoft.OpenApi.Models;
 using Swashbuckle.AspNetCore.SwaggerGen;
+using System.Runtime.CompilerServices;
 using System.Text.Json;
 
 
@@ -9,78 +11,32 @@ namespace NSE.Identidade.API.Configuration
 {
     public static class SwaggerConfig
     {
-        public static IServiceCollection AddSwaggerConfig(this IServiceCollection services)
+        public static IServiceCollection AddSwaggerConfiguration(this IServiceCollection services)
         {
-            services.AddSwaggerGen(c => 
+            services.AddSwaggerGen(c =>
             {
-                c.OperationFilter<SwaggerDefaultValues>();
-
-                c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+                c.SwaggerDoc("v1", new OpenApiInfo
                 {
-                    Description = "Insira o token JWT desta maneira: Bearer {seu token}",
-                    Name = "Authorization",
-                    Scheme = "Bearer",
-                    BearerFormat = "JWT",
-                    In = ParameterLocation.Header,
-                    Type = SecuritySchemeType.ApiKey
+                    Title = "NerdStore Entreprise Identity api",
+                    Description = "Esta APi faz parte do curso ASP.net core entreprise aplication.",
+                    Contact = new OpenApiContact() { Name = "Douglas dos santos", Email = "douglas@teste.com.br.io" },
+                    License = new OpenApiLicense() { Name = "MIT", Url = new Uri("https://opensource.org/licesnses/MIT") }
                 });
-
-                c.AddSecurityRequirement(new OpenApiSecurityRequirement
-                {
-                    {
-                       new OpenApiSecurityScheme
-                       {
-                            Reference = new OpenApiReference
-                            {
-                                Type = ReferenceType.SecurityScheme,
-                                Id = "Bearer"
-                            }
-                       },
-                        new string[] {}
-                    }
-                });
-
             });
             return services;
         }
-        
-    }
 
-    public class SwaggerDefaultValues : IOperationFilter
-    {
-        public void Apply(OpenApiOperation operation, OperationFilterContext context)
+        public static IApplicationBuilder UseSwaggerConfiguration(this IApplicationBuilder app)
         {
-            var apiDescription = context.ApiDescription;
-
-           // operation.Deprecated |= apiDescription.IsDeprecated();
-
-            foreach (var responseType in context.ApiDescription.SupportedResponseTypes)
+            app.UseSwagger();
+            app.UseSwaggerUI(c =>
             {
-                var responseKey = responseType.IsDefaultResponse ? "default" : responseType.StatusCode.ToString();
-                var response = operation.Responses[responseKey];
+                c.SwaggerEndpoint("swagger/v1/swagger.json", "v1");
+            });
 
-                foreach (var contentType in response.Content.Keys)
-                    if (responseType.ApiResponseFormats.All(x => x.MediaType != contentType))
-                        response.Content.Remove(contentType);
-            }
-
-            if (operation.Parameters == null)
-                return;
-
-            foreach (var parameter in operation.Parameters)
-            {
-                var description = apiDescription.ParameterDescriptions.First(p => p.Name == parameter.Name);
-
-                parameter.Description ??= description.ModelMetadata.Description;
-
-                if (parameter.Schema.Default == null && description.DefaultValue != null)
-                {
-                    var json = JsonSerializer.Serialize(description.DefaultValue, description.ModelMetadata.ModelType);
-                    parameter.Schema.Default = OpenApiAnyFactory.CreateFromJson(json);
-                }
-
-                parameter.Required |= description.IsRequired;
-            }
+            return app;
         }
+
     }
+    
 }
