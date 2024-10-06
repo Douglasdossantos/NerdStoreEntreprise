@@ -11,6 +11,8 @@ using NSE.Identidade.API.Configuration;
 
 var builder = WebApplication.CreateBuilder(args);
 
+//public IConfiguration Configuration {  get; }
+
 builder.Configuration
     .SetBasePath(builder.Environment.ContentRootPath)
     .AddJsonFile("appsettings.json", true, true)
@@ -18,6 +20,8 @@ builder.Configuration
     .AddEnvironmentVariables();
 
 builder.Services.AddControllers();
+
+builder.Services.AddIdentityConfiguration(builder.Configuration);
 
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
 {
@@ -33,3 +37,6 @@ var app = builder.Build();
 app.UseApiConfiguration(app.Environment);
 
 app.UseSwaggerConfiguration();
+
+app.Run();
+
