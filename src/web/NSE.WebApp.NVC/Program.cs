@@ -1,10 +1,12 @@
-using NSE.WebApp.NVC.Configuration;
+using NSE.WebApp.MVC.Configuration;
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddIdentityConfiguration();
 
 builder.Services.AddMvcConfiguration();
+
+builder.Services.RegisterService();
 
 var app = builder.Build();
 

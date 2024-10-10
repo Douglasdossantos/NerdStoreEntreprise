@@ -139,7 +139,7 @@ namespace NSE.Identidade.API.Controllers
                 UsuarioToken = new UsuarioToken
                 {
                     Id = user.Id,
-                    Email = encodedeToken,
+                    Email = user.Email,
                     Claims = claims.Select(c => new UsuarioClaim { Type = c.Type, Value = c.Value })
                 }
             };

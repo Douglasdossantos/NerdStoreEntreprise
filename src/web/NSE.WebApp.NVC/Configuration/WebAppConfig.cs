@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Builder;
 
-namespace NSE.WebApp.NVC.Configuration
+namespace NSE.WebApp.MVC.Configuration
 {
     public static class WebAppConfig
     {
