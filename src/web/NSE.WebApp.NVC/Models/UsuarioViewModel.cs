@@ -1,4 +1,4 @@
-﻿using NSE.Identidade.API.Models;
+﻿using NSE.WebApp.MVC.Models;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 
@@ -36,6 +36,7 @@ namespace NSE.WebApp.MVC.Models
         public string AccessToken { get; set; }
         public double ExpiresIn { get; set; }
         public UsuarioToken UsuarioToken { get; set; }
+        public ResponseResult ResponseResult { get; set; }  
     }
     public class UsuarioToken
     {

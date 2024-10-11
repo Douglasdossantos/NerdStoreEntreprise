@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Mvc;
+using NSE.WebApp.MVC.Controllers;
 using NSE.WebApp.MVC.Models;
 using NSE.WebApp.MVC.Services;
 using System.IdentityModel.Tokens.Jwt;
@@ -8,7 +9,7 @@ using System.Security.Claims;
 
 namespace NSE.WebApp.NVC.Controllers
 {
-    public class IdentidadeController : Controller
+    public class IdentidadeController : MainController
     {
         private readonly IAutenticacaoService _autenticacaoService;
 
@@ -32,6 +33,11 @@ namespace NSE.WebApp.NVC.Controllers
             
             var resposta =await _autenticacaoService.Registro(usuarioRegistro);
 
+            if (ResponsePossuiErros(resposta.ResponseResult))
+            {
+                return View(usuarioRegistro);
+            }
+
             await Realizarlogin(resposta);
 
             //if (false) return View(usuarioRegistro);
@@ -54,9 +60,9 @@ namespace NSE.WebApp.NVC.Controllers
 
             var resposta = await _autenticacaoService.Login(usuarioLogin);
 
-            await Realizarlogin(resposta);
+            if (ResponsePossuiErros(resposta.ResponseResult)) return View(usuarioLogin);
 
-            if (false) return View(usuarioLogin);
+            await Realizarlogin(resposta);
 
             return RedirectToAction("Index", "Home");
 
@@ -66,6 +72,7 @@ namespace NSE.WebApp.NVC.Controllers
         [Route("sair")]
         public async Task<IActionResult> Logout()
         {
+            await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
             return RedirectToAction("Index","Home");
         }
 
