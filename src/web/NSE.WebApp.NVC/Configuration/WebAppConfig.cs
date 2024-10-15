@@ -1,12 +1,15 @@
 ﻿using Microsoft.AspNetCore.Builder;
+using NSE.WebApp.MVC.Extensions;
 
 namespace NSE.WebApp.MVC.Configuration
 {
     public static class WebAppConfig
     {
-        public static void AddMvcConfiguration(this IServiceCollection service)
+        public static void AddMvcConfiguration(this IServiceCollection service, IConfiguration configuration)
         {
             service.AddControllersWithViews();
+
+            service.Configure<AppSettings>(configuration);
         }
 
         public static void UseMvcConfiguration(this IApplicationBuilder app, IWebHostEnvironment env)
@@ -18,7 +21,8 @@ namespace NSE.WebApp.MVC.Configuration
             }
             else
             {
-                app.UseExceptionHandler("/Home/Error");
+                app.UseExceptionHandler("/erro/500");
+                app.UseStatusCodePagesWithRedirects("/erro/{0}");
                 app.UseHsts();
             }
 
@@ -28,6 +32,7 @@ namespace NSE.WebApp.MVC.Configuration
             app.UseRouting();
 
             app.UseIdentityConfiguration();
+            app.UseMiddleware<ExceptionMiddleware>();
 
             app.UseEndpoints(endpoints =>
             {
